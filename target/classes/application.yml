@@ -1,0 +1,70 @@
+# Spring Data JPA Auditing Configuration
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/lincdb?createDatabaseIfNotExist=true
+    username: root
+    password: password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10 # Connection pool size
+  jpa:
+    hibernate:
+      ddl-auto: update  # Adjust based on your requirements (e.g., none, update, validate, create-drop)
+    show-sql: true  # Show SQL queries in the logs (optional)
+    properties:
+      hibernate:
+        format_sql: true
+
+# Log level for audit logs (DEBUG, INFO, WARN, ERROR)
+
+logging:
+  audit:
+    enabled: true
+  performance:
+    enabled: true
+  security:
+    enabled: true
+
+app:
+  security:
+    jwt:
+      enabled: true
+      secret-key: ${JWT_SECRET:YjE4NzQ2MzQ0MmFkNzFhZTY0ZDNiZDZkMGQwMTg5MGRmMjM5YjY3OTkwMGZjMzk5ZGVkNmYwMmYzYzgwZGNiN2Y=}
+      expiration-ms: 86400000
+      header-name: Authorization
+      token-prefix: "Bearer "
+      excluded-paths:
+        - "/api/auth/**"
+        - "/actuator/**"
+        - "/swagger-ui/**"
+        - "/v3/api-docs/**"
+        
+    header-validation:
+      enabled: true
+      required-headers:
+        - X-Message-Id
+        - X-Correlation-Id
+      validation-rules:
+        X-Message-Id:
+          required: true
+          error-message: "Required x-messageId header is Missing"
+        X-Correlation-Id:
+          required: true
+          error-message: "Required x-appCorrelationId header is Missing"
+      excluded-paths:
+        - "/actuator/**"
+        - "/swagger-ui/**"
+        - "/v3/api-docs/**"
+        - "/api/auth/**"
+
+
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: when-authorized
