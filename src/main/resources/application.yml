@@ -1,0 +1,85 @@
+auth:
+  jwt:
+    secret-key: changeThisToASecureSecretKeyInProduction
+    access-token-validity-minutes: 15
+    refresh-token-validity-hours: 8
+    issuer: multi-tenant-auth
+
+jwt:
+  private-key.path: classpath:keys/private_key.pem
+  public-key.path: classpath:keys/public_key.pem
+
+spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ""
+    password: ""
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+    auth:
+      mail:
+        from: noreply@medgenome.com
+        subject: OTP Code
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/lincdb?createDatabaseIfNotExist=true
+    username: root
+    password: password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate.dialect: org.hibernate.dialect.MySQLDialect
+      show-sql: true
+
+common:
+  db:
+    datasources:
+      primary:
+        priority: 100
+        jdbc-url: jdbc:mysql://localhost:3306/lincdb?createDatabaseIfNotExist=true
+        username: root
+        password: password
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        max-pool-size: 10
+        min-idle: 5
+        idle-timeout-ms: 600000
+        max-lifetime-ms: 1800000
+        connection-timeout-ms: 30000
+
+  interceptor:
+    metrics-enabled: true
+    metrics-path-patterns: "/**"
+    metrics-excluded-path-patterns:
+      - "/health/**"
+      - "/actuator/**"
+
+    correlation-id-enabled: true
+    correlation-id-header-name: "X-Correlation-ID"
+    correlation-id-path-patterns: "/**"
+
+    security-token-enabled: true
+    security-token-header-name: "Authorization"
+    security-token-prefix: "Bearer"
+    security-token-path-patterns: "/**"
+    security-token-excluded-path-patterns:
+      - "/public/**"
+      - "/api/auth/**"
+
+  logging:
+    enabled: true
+    level: INFO
+    console:
+      enabled: true
+      pattern: "%d{yyyy-MM-dd HH:mm:ss} [%X{messageId:-N/A}] [%X{correlationId:-N/A}] [%X{appName:-app}] [%X{user:-system}] %-5level %logger{36} - %msg%n"
+    file:
+      enabled: true
+      path: logs/application.log
+      pattern: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+      roll-by-size: true
+      max-file-size: 10MB
+      max-history: 7
+      total-size-cap: 1GB

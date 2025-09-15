@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!-- Include Spring Boot default settings -->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+
+    <!-- Define the application name property -->
+    <springProperty scope="context" name="appName" source="spring.application.name" defaultValue="application"/>
+
+    <!-- General JSON Console Appender for structured logging -->
+    <appender name="JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+                    <Pattern>
+                        %d{yyyy-MM-dd HH:mm:ss.SSS} | app=%X{appName:-unknown} | level=%-5level |
+                        PERF | user=%X{userId} | method=%X{methodName} | class=%X{className} |
+                        execTime=%X{executionTime}ms | msgId=%X{messageId} | corrId=%X{correlationId} |
+                        %logger{36} - %msg%n
+                    </Pattern>
+        </encoder>
+    </appender>
+
+    <logger name="com.medgenome.jsonconsole" level="DEBUG" additivity="false">
+        <appender-ref ref="JSON_CONSOLE"/>
+    </logger>
+
+    <!-- Dedicated AUDIT logger for specific audit logs -->
+    <appender name="AUDIT_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>
+                %d{yyyy-MM-dd HH:mm:ss.SSS} | app=%X{appName:-unknown} | level=%-5level |
+                AUDIT | user=%X{userId} | action=%X{auditAction} | entity=%X{auditEntity} |
+                msgId=%X{messageId} | corrId=%X{correlationId} |
+                %logger{36} - %msg%n
+            </Pattern>
+        </encoder>
+    </appender>
+
+    <logger name="com.medgenome.audit" level="INFO" additivity="false">
+        <appender-ref ref="AUDIT"/>
+    </logger>
+
+
+    <!-- Rolling File Appender for error logs -->
+    <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/error.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/error-%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} | ERROR | %thread | %logger{36} | %msg%n</Pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+    </appender>
+
+    <!-- Console Appender for performance logs -->
+    <appender name="PERFORMANCE_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>
+                %d{yyyy-MM-dd HH:mm:ss.SSS} | app=%X{appName} | level=%-5level |
+                PERF | user=%X{userId} | method=%X{methodName} | class=%X{className} |
+                execTime=%X{executionTime}ms | msgId=%X{messageId} | corrId=%X{correlationId} |
+                %logger{36} - %msg%n
+            </Pattern>
+        </encoder>
+    </appender>
+
+    <logger name="com.medgenome.performance" level="DEBUG" additivity="false">
+        <appender-ref ref="PERFORMANCE_CONSOLE"/>
+    </logger>
+
+
+    <!-- Security log appender -->
+    <appender name="SECURITY_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} | SECURITY | %thread | %logger{36} | %msg | User: %X{userId} | IP: %X{clientIp}%n</Pattern>
+        </encoder>
+    </appender>
+
+    <logger name="com.medgenome.security" level="INFO" additivity="false">
+        <appender-ref ref="SECURITY"/>
+    </logger>
+
+    <!-- Root Logger Configuration -->
+    <root level="INFO">
+        <appender-ref ref="JSON_CONSOLE"/>
+        <appender-ref ref="ERROR_FILE"/>
+    </root>
+
+
+
+    <!-- Framework and Library Logging -->
+    <logger name="org.springframework.web" level="INFO"/>
+    <logger name="org.springframework.security" level="INFO"/>
+    <logger name="org.springframework.boot.autoconfigure" level="INFO"/>
+    <logger name="org.hibernate" level="WARN"/>
+    <logger name="com.medgenome.servicecommon" level="DEBUG"/>
+
+    <!-- Performance Logging -->
+    <logger name="com.medgenome.servicecommon.logging.properties" level="INFO"/>
+
+    <!-- Security Logging -->
+    <logger name="com.medgenome.servicecommon.security" level="INFO"/>
+
+    <!-- Audit Logging -->
+    <logger name="com.medgenome.servicecommon.audit" level="INFO"/>
+</configuration>

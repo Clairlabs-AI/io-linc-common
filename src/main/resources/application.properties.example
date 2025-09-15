@@ -1,0 +1,110 @@
+# Common Library Configuration Example
+# Copy and customize this file for your application
+
+# Global configuration
+common.enabled=true
+
+# Logging configuration
+common.logging.enabled=true
+common.logging.level=INFO
+common.logging.console-enabled=true
+common.logging.console-pattern="%d{yyyy-MM-dd HH:mm:ss} [%X{messageId:-N/A}] [%X{correlationId:-N/A}] [%X{appName:-app}] [%X{user:-system}] %-5level %logger{36} - %msg%n"/>
+common.logging.file-enabled=true
+common.logging.file-path=logs/application.log
+common.logging.file-pattern=%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n
+common.logging.roll-by-size=true
+common.logging.max-file-size=10MB
+common.logging.max-history=7
+common.logging.total-size-cap=1GB
+
+# Request logging configuration
+common.logging.request.enabled=true
+common.logging.request.include-query-string=true
+common.logging.request.include-payload=true
+common.logging.request.max-payload-length=10000
+common.logging.request.include-headers=false
+
+# AOP configuration
+common.aop.performance.enabled=true
+common.aop.audit.enabled=true
+common.aop.exception.enabled=true
+
+# HTTP interceptors configuration
+common.interceptor.metrics-enabled=true
+common.interceptor.metrics-path-patterns=/**
+common.interceptor.metrics-excluded-path-patterns=/health/**,/actuator/**
+
+common.interceptor.correlation-id-enabled=true
+common.interceptor.correlation-id-header-name=X-Correlation-ID
+common.interceptor.correlation-id-path-patterns=/**
+
+common.interceptor.security-token-enabled=false
+common.interceptor.security-token-header-name=Authorization
+common.interceptor.security-token-prefix=Bearer 
+common.interceptor.security-token-path-patterns=/**
+common.interceptor.security-token-excluded-path-patterns=/public/**,/auth/**
+
+# Exception handler configuration
+common.exception.handler-enabled=true
+
+# Database configuration
+common.db.enabled=true
+common.db.primary-datasource=primary
+
+# Primary database configuration
+common.db.datasources.primary.priority=100
+common.db.datasources.primary.jdbc-url=jdbc:postgresql://localhost:5432/mydb
+common.db.datasources.primary.username=postgres
+common.db.datasources.primary.password=postgres
+common.db.datasources.primary.driver-class-name=org.postgresql.Driver
+common.db.datasources.primary.max-pool-size=10
+common.db.datasources.primary.min-idle=5
+common.db.datasources.primary.idle-timeout-ms=600000
+common.db.datasources.primary.max-lifetime-ms=1800000
+common.db.datasources.primary.connection-timeout-ms=30000
+
+# Secondary database configuration (if needed)
+common.db.datasources.secondary.priority=50
+common.db.datasources.secondary.jdbc-url=jdbc:postgresql://localhost:5432/secondarydb
+common.db.datasources.secondary.username=postgres
+common.db.datasources.secondary.password=postgres
+common.db.datasources.secondary.driver-class-name=org.postgresql.Driver
+
+# Kafka configuration
+common.kafka.enabled=false
+common.kafka.bootstrap-servers=localhost:9092
+common.kafka.default-topic=default-topic
+common.kafka.default-topic-partitions=3
+common.kafka.default-topic-replicas=1
+
+common.kafka.producer.acks=all
+common.kafka.producer.retries=3
+common.kafka.producer.batch-size=16384
+common.kafka.producer.linger-ms=1
+common.kafka.producer.buffer-memory=33554432
+
+common.kafka.consumer.group-id=default-group
+common.kafka.consumer.auto-offset-reset=latest
+common.kafka.consumer.enable-auto-commit=true
+common.kafka.consumer.concurrency=3
+common.kafka.consumer.batch-listener=false
+common.kafka.consumer.trusted-packages=*
+
+# JMS configuration
+common.jms.enabled=false
+common.jms.broker-url=tcp://localhost:61616
+common.jms.username=
+common.jms.password=
+common.jms.default-queue=default.queue
+common.jms.pub-sub-domain=false
+common.jms.delivery-persistent=true
+common.jms.explicit-qos-enabled=false
+common.jms.time-to-live=0
+common.jms.priority=4
+common.jms.listener-concurrency=1-3
+common.jms.session-transacted=true
+common.jms.trusted-packages=com.medgenome
+
+# Priority configuration properties
+common.config.enabled=true
+common.config.default-priority=100
