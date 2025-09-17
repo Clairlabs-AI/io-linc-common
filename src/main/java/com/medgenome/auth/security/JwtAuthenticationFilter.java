@@ -75,7 +75,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String currentApplication =  MDC.get("appName");
         if (CollectionUtils.isEmpty(allowedApplications)) {
             allowedApplications = new ArrayList<>();
-            allowedApplications.addAll(Arrays.asList("Patient", "Sample"));
+            allowedApplications.addAll(Arrays.asList("Patient", "Sample","Family","BulkImport"));
         }
         return allowedApplications.contains(currentApplication);
     }
