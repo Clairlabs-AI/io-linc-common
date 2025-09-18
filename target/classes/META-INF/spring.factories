@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.medgenome.servicecommon.ServiceCommonAutoConfiguration
+com.medgenome.auth.config.SecurityConfig
