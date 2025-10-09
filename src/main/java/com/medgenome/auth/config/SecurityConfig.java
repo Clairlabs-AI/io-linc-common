@@ -76,7 +76,8 @@ public class SecurityConfig {
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:3000",
                 "http://localhost:4200",
-                "http://localhost:4203"
+                "http://localhost:4203",
+                "https://testing-linc.medgenome.com/"
         ));
         //configuration.setAllowedOrigins(List.of("*"));
         configuration.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
