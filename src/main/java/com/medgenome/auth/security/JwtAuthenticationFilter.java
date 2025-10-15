@@ -76,6 +76,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (CollectionUtils.isEmpty(allowedApplications)) {
             allowedApplications = new ArrayList<>();
             allowedApplications.addAll(Arrays.asList("Patient", "Sample","Family","BulkImport"));
+
         }
         return allowedApplications.contains(currentApplication);
     }
