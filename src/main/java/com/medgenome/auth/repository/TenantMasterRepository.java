@@ -7,5 +7,6 @@ import java.util.Optional;
 public interface TenantMasterRepository extends JpaRepository<TenantMaster, Integer> {
     Optional<TenantMaster> findByTenantCode(String tenantCode);
     Optional<TenantMaster> findByEmailId(String emailId);
+    TenantMaster findByTenantId(Integer tenantId);
 }
 
