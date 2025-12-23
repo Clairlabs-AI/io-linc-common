@@ -5,7 +5,8 @@ import io.micrometer.core.instrument.Timer;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
@@ -22,13 +23,13 @@ import java.util.concurrent.TimeUnit;
  * Interceptor for collecting metrics about HTTP requests.
  * Records request duration, status codes, and other metrics.
  */
-@Slf4j
 @Component
 @ConditionalOnWebApplication
 @ConditionalOnClass(MeterRegistry.class)
 @ConditionalOnProperty(prefix = "common.interceptor", name = "metrics-enabled", havingValue = "true", matchIfMissing = true)
 public class RequestMetricsInterceptor implements HandlerInterceptor, Ordered {
 
+    private static final Logger log = LoggerFactory.getLogger(RequestMetricsInterceptor.class);
     private static final String START_TIME_ATTRIBUTE = "requestStartTime";
     
     private final MeterRegistry meterRegistry;

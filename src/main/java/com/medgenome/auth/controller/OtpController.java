@@ -1,3 +1,4 @@
+/*
 package com.medgenome.auth.controller;
 
 import com.medgenome.auth.config.MultiTenantAuthProperties;
@@ -68,4 +69,4 @@ public class OtpController {
 
         return ResponseEntity.status(401).build(); // Unauthorized if OTP verification fails
     }
-}
+}*/

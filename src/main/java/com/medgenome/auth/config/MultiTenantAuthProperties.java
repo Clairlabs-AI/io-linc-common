@@ -11,6 +11,9 @@ public class MultiTenantAuthProperties {
     private final Twilio twilio = new Twilio();
     private final Mail mail = new Mail();
 
+    public Otp getOtp() { return otp; }
+    public Mail getMail() { return mail; }
+
     @Data
     public static class Jwt {
         private long accessTokenValidityMinutes = 15;
@@ -24,6 +27,8 @@ public class MultiTenantAuthProperties {
         private int validityMinutes = 5;
         private String emailTemplate = "Your OTP is: {0}. Valid for {1} minutes.";
         private String smsTemplate = "Your OTP is: {0}. Valid for {1} minutes.";
+        public String getEmailTemplate() { return emailTemplate; }
+        public int getValidityMinutes() { return validityMinutes; }
     }
 
     @Data
@@ -37,5 +42,7 @@ public class MultiTenantAuthProperties {
     public static class Mail {
         private String from;
         private String subject = "Your OTP Code";
+        public String getSubject() { return subject; }
+        public String getFrom() { return from; }
     }
 }

@@ -1,6 +1,7 @@
 package com.medgenome.common.aop;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -21,9 +22,10 @@ import java.util.stream.Collectors;
  */
 @Aspect
 @Component
-@Slf4j
 @ConditionalOnProperty(prefix = "common.aop.performance", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class PerformanceLoggingAspect {
+
+    private static final Logger log = LoggerFactory.getLogger(PerformanceLoggingAspect.class);
 
     @Pointcut("@annotation(com.medgenome.common.aop.annotation.LogPerformance)")
     public void performanceLoggingPointcut() {

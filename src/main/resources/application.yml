@@ -10,33 +10,17 @@ jwt:
   public-key.path: classpath:keys/public_key.pem
 
 spring:
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: ""
-    password: ""
-    properties:
-      mail.smtp.auth: true
-      mail.smtp.starttls.enable: true
-    auth:
-      mail:
-        from: noreply@medgenome.com
-        subject: OTP Code
-
-  datasource:
-    url: jdbc:mysql://localhost:3306/lincdb?createDatabaseIfNotExist=true
-    username: root
-    password: password
-    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     properties:
       hibernate.dialect: org.hibernate.dialect.MySQLDialect
       show-sql: true
 
 common:
   db:
+    enabled: true
+    primary-datasource: primary
     datasources:
       primary:
         priority: 100

@@ -14,14 +14,14 @@ public class VerificationService {
 
     private final UserRepository userRepository;
     private final EmailService emailService;
-    private final OtpService otpService;
 
-    public VerificationService(UserRepository userRepository, EmailService emailService,
-                                OtpService otpService) {
+    public VerificationService(UserRepository userRepository, EmailService emailService
+                               ) {
         this.userRepository = userRepository;
         this.emailService = emailService;
-        this.otpService = otpService;
     }
+
+    // Email verification is good for now. We will enhance later
 
     public void initiateVerification(User user) {
         String emailToken = UUID.randomUUID().toString();
@@ -34,12 +34,13 @@ public class VerificationService {
 
         userRepository.save(user);
 
+        //todo -- mail invite should be sent from account owner always.
         // Send email
         String verificationLink = "https://medgenome.com/api/verify-email?token=" + emailToken;
         emailService.send(user.getEmail(), "Verify your Email", "Click to verify: " + verificationLink);
 
         // Send OTP
-        otpService.sendSmsOtp(user.getPhone(), user.getTenant().getTenantId());
+       // otpService.sendSmsOtp(user.getPhone(), user.getTenant().getTenantId());
     }
 }
 

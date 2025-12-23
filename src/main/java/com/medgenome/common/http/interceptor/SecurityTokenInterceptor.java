@@ -4,8 +4,9 @@ import com.medgenome.auth.security.JwtTokenProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -17,11 +18,12 @@ import org.springframework.web.servlet.HandlerInterceptor;
  * Interceptor for validating security tokens in HTTP requests.
  * Basic implementation that can be customized for specific authentication schemes.
  */
-@Slf4j
 @ConditionalOnWebApplication
 @EnableConfigurationProperties(InterceptorProperties.class)
 @ConditionalOnProperty(prefix = "common.interceptor", name = "security-token-enabled", havingValue = "true")
 public class SecurityTokenInterceptor implements HandlerInterceptor, Ordered {
+
+    private static final Logger log = LoggerFactory.getLogger(SecurityTokenInterceptor.class);
 
     private final InterceptorProperties properties;
     private final JwtTokenProvider tokenProvider;

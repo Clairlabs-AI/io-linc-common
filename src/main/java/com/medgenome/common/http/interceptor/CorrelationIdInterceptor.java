@@ -1,10 +1,13 @@
 package com.medgenome.common.http.interceptor;
 
+import com.medgenome.common.http.exception.GlobalExceptionHandler;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
@@ -19,12 +22,13 @@ import java.util.UUID;
  * Interceptor for managing correlation IDs in HTTP requests.
  * Adds or propagates correlation IDs for distributed tracing.
  */
-@Slf4j
 @Component
 @ConditionalOnWebApplication
 @EnableConfigurationProperties(InterceptorProperties.class)
 @ConditionalOnProperty(prefix = "common.interceptor", name = "correlation-id-enabled", havingValue = "true", matchIfMissing = true)
 public class CorrelationIdInterceptor implements HandlerInterceptor, Ordered {
+
+    private static final Logger log = LoggerFactory.getLogger(CorrelationIdInterceptor.class);
 
     private static final String CORRELATION_ID_MDC_KEY = "correlationId";
     

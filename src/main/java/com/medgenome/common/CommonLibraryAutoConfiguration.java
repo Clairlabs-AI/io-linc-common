@@ -15,11 +15,8 @@ import com.medgenome.common.logging.LoggingConfiguration;
 import com.medgenome.common.logging.LoggingProperties;
 import com.medgenome.common.logging.RequestLoggingConfiguration;
 import com.medgenome.common.logging.RequestLoggingProperties;
-import com.medgenome.common.messaging.jms.JmsConfiguration;
-import com.medgenome.common.messaging.jms.JmsProperties;
-import com.medgenome.common.messaging.kafka.KafkaConfiguration;
-import com.medgenome.common.messaging.kafka.KafkaProperties;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -34,15 +31,12 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
  * Auto-configuration class for the common library.
  * Imports all configuration classes and sets up property sources.
  */
-@Slf4j
 @Configuration
 @EnableConfigurationProperties({
     LoggingProperties.class,
     RequestLoggingProperties.class,
     InterceptorProperties.class,
     DatabaseProperties.class,
-    KafkaProperties.class,
-    JmsProperties.class,
     PriorityConfigurationProperties.class,
     MultiTenantAuthProperties.class
 })
@@ -65,11 +59,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
     GlobalExceptionHandler.class,
     
     // Database
-    DatabaseConfiguration.class,
-    
-    // Messaging
-    KafkaConfiguration.class,
-    JmsConfiguration.class
+    DatabaseConfiguration.class
+
 })
 @EnableJpaRepositories(basePackages = {
         "com.medgenome.auth.repository"
@@ -77,6 +68,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @ConditionalOnProperty(name = "common.enabled", havingValue = "true", matchIfMissing = true)
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 public class CommonLibraryAutoConfiguration {
+
+    private static final Logger log = LoggerFactory.getLogger(CommonLibraryAutoConfiguration.class);
 
     @Bean
     public PriorityPropertySource priorityPropertySource(

@@ -1,6 +1,7 @@
 package com.medgenome.common.logging;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
@@ -14,13 +15,14 @@ import org.springframework.web.servlet.DispatcherServlet;
  * Configuration for HTTP request and response logging.
  * Only activated for web applications with DispatcherServlet present.
  */
-@Slf4j
 @Configuration
 @ConditionalOnWebApplication
 @ConditionalOnClass(DispatcherServlet.class)
 @EnableConfigurationProperties(RequestLoggingProperties.class)
 @ConditionalOnProperty(prefix = "common.logging.request", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class RequestLoggingConfiguration {
+
+    private static final Logger log = LoggerFactory.getLogger(RequestLoggingConfiguration.class);
 
     private final RequestLoggingProperties properties;
 

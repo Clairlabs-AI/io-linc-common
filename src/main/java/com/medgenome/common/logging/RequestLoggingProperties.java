@@ -59,4 +59,84 @@ public class RequestLoggingProperties {
      * The suffix to use after the response message.
      */
     private String afterMessageSuffix = "]";
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public boolean isIncludeQueryString() {
+        return includeQueryString;
+    }
+
+    public void setIncludeQueryString(boolean includeQueryString) {
+        this.includeQueryString = includeQueryString;
+    }
+
+    public boolean isIncludePayload() {
+        return includePayload;
+    }
+
+    public void setIncludePayload(boolean includePayload) {
+        this.includePayload = includePayload;
+    }
+
+    public int getMaxPayloadLength() {
+        return maxPayloadLength;
+    }
+
+    public void setMaxPayloadLength(int maxPayloadLength) {
+        this.maxPayloadLength = maxPayloadLength;
+    }
+
+    public boolean isIncludeClientInfo() {
+        return includeClientInfo;
+    }
+
+    public void setIncludeClientInfo(boolean includeClientInfo) {
+        this.includeClientInfo = includeClientInfo;
+    }
+
+    public boolean isIncludeHeaders() {
+        return includeHeaders;
+    }
+
+    public void setIncludeHeaders(boolean includeHeaders) {
+        this.includeHeaders = includeHeaders;
+    }
+
+    public String getBeforeMessagePrefix() {
+        return beforeMessagePrefix;
+    }
+
+    public void setBeforeMessagePrefix(String beforeMessagePrefix) {
+        this.beforeMessagePrefix = beforeMessagePrefix;
+    }
+
+    public String getBeforeMessageSuffix() {
+        return beforeMessageSuffix;
+    }
+
+    public void setBeforeMessageSuffix(String beforeMessageSuffix) {
+        this.beforeMessageSuffix = beforeMessageSuffix;
+    }
+
+    public String getAfterMessagePrefix() {
+        return afterMessagePrefix;
+    }
+
+    public void setAfterMessagePrefix(String afterMessagePrefix) {
+        this.afterMessagePrefix = afterMessagePrefix;
+    }
+
+    public String getAfterMessageSuffix() {
+        return afterMessageSuffix;
+    }
+
+    public void setAfterMessageSuffix(String afterMessageSuffix) {
+        this.afterMessageSuffix = afterMessageSuffix;
+    }
 }

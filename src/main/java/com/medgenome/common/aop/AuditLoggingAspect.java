@@ -1,7 +1,8 @@
 package com.medgenome.common.aop;
 
 import com.medgenome.common.aop.annotation.Audited;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
@@ -22,9 +23,10 @@ import java.util.Optional;
  */
 @Aspect
 @Component
-@Slf4j
 @ConditionalOnProperty(prefix = "common.aop.audit", name = "enabled", havingValue = "true", matchIfMissing = true)
 public class AuditLoggingAspect {
+
+    private static final Logger log = LoggerFactory.getLogger(AuditLoggingAspect.class);
 
     @Pointcut("@annotation(com.medgenome.common.aop.annotation.Audited)")
     public void auditPointcut() {

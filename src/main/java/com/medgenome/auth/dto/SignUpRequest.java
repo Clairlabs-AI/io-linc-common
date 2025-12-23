@@ -16,5 +16,16 @@ public class SignUpRequest {
     @NotBlank
     private String passwordHash;
 
+    // Explicit getters to ensure availability regardless of Lombok processing
+    public String getEmail() {
+        return email;
+    }
 
+    public String getPhone() {
+        return phone;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
 }

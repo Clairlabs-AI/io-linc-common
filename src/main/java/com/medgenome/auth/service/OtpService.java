@@ -1,3 +1,4 @@
+/*
 package com.medgenome.auth.service;
 
 import com.medgenome.auth.config.MultiTenantAuthProperties;
@@ -120,4 +121,4 @@ public class OtpService {
                 .map(Domain::getName)
                 .toList();
     }
-}
+}*/

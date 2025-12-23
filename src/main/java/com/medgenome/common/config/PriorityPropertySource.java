@@ -1,15 +1,17 @@
 package com.medgenome.common.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.env.PropertySource;
 
 /**
  * Custom PropertySource implementing priority-based override logic.
  * Properties with higher priority override those with lower priority.
  */
-@Slf4j
 public class PriorityPropertySource extends PropertySource<PriorityConfigurationProperties> {
+
+    private static final Logger log = LoggerFactory.getLogger(PriorityPropertySource.class);
 
     private final PriorityConfigurationProperties properties;
 

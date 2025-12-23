@@ -8,10 +8,7 @@ import java.sql.Timestamp;
 @EqualsAndHashCode(callSuper = false)
 @Data
 @Entity
-@Table(name = "tenant_master", uniqueConstraints = {
-    @UniqueConstraint(columnNames = "tenant_code"),
-    @UniqueConstraint(columnNames = "email_id")
-})
+@Table(name = "tenant_master")
 public class TenantMaster {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,17 +24,14 @@ public class TenantMaster {
     @Column(name = "tenant_code", length = 36, nullable = false, unique = true)
     private String tenantCode;
 
-    @Column(name = "tenant_address", length = 500)
+    @Column(name = "tenant_address", columnDefinition = "json")
     private String tenantAddress;
 
     @Column(name = "website_address", length = 100)
     private String websiteAddress;
 
-    @Column(name = "phone_number", length = 20, nullable = false)
+    @Column(name = "phone_number", columnDefinition = "json", nullable = false)
     private String phoneNumber;
-
-    @Column(name = "alternate_phone_number", length = 20)
-    private String alternatePhoneNumber;
 
     @Column(name = "primary_contact_name", length = 40)
     private String primaryContactName;
@@ -51,10 +45,10 @@ public class TenantMaster {
     @Column(name = "plan_type", length = 20)
     private String planType;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "timestamp default CURRENT_TIMESTAMP")
     private Timestamp createdAt;
 
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "updated_at", nullable = false, columnDefinition = "timestamp default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP")
     private Timestamp updatedAt;
 
     @Column(name = "created_by", length = 50, nullable = false)
@@ -74,4 +68,3 @@ public class TenantMaster {
         this.updatedAt = new Timestamp(System.currentTimeMillis());
     }
 }
-

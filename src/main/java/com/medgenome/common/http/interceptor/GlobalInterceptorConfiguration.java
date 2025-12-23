@@ -1,7 +1,10 @@
 package com.medgenome.common.http.interceptor;
 
+import com.medgenome.common.http.exception.GlobalExceptionHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -14,13 +17,14 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * Configuration for HTTP request interceptors.
  * Registers all active interceptors with the Spring MVC framework.
  */
-@Slf4j
 @Configuration
 @RequiredArgsConstructor
 @ConditionalOnWebApplication
 @ConditionalOnClass(DispatcherServlet.class)
 @EnableConfigurationProperties(InterceptorProperties.class)
 public class GlobalInterceptorConfiguration implements WebMvcConfigurer {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalInterceptorConfiguration.class);
 
     private final InterceptorProperties properties;
     private final RequestMetricsInterceptor requestMetricsInterceptor;
