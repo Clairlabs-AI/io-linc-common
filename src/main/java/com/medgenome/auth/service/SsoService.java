@@ -72,50 +72,12 @@ public class SsoService {
 
         session = ssoSessionRepository.save(session);
 
-        // Create new refresh token
-        RefreshToken refreshToken = new RefreshToken();
-        refreshToken.setToken(tokenProvider.generateToken(
-                user.getEmail(),
-                tenantId,
-                user.getUserRoles().stream()
-                        .map(userRole -> userRole.getRole().getName())
-                        .toList(),
-                user.getTenant().getApplications().stream()
-                        .map(Application::getName)
-                        .toList(),
-                user.getTenant().getDomains().stream()
-                        .map(Domain::getName)
-                        .toList()
-        ));
-
-        log.info("token length: {}", refreshToken.getToken().length());
-        refreshToken.setUsername(user.getEmail());
-        refreshToken.setTenantId(tenantId);
-        refreshToken.setExpiryDate(Instant.now().plusSeconds(properties.getJwt().getRefreshTokenValidityHours() * 60 * 60));
-        refreshToken = refreshTokenRepository.save(refreshToken);
-
-        // Create access token
-        String accessToken = tokenProvider.generateToken(
-                user.getEmail(),
-                tenantId,
-                user.getUserRoles().stream()
-                        .map(userRole -> userRole.getRole().getName())
-                        .toList(),
-                user.getTenant().getApplications().stream()
-                        .map(Application::getName)
-                        .toList(),
-                user.getTenant().getDomains().stream()
-                        .map(Domain::getName)
-                        .toList()
-        );
-
-        return SsoResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken.getToken())
-                .sessionId(session.getSessionId())
-                .tokenType("Bearer")
-                .expiresIn(properties.getJwt().getAccessTokenValidityMinutes() * 60)
-                .build();
+        // Token generation is now handled by the IAM service
+        // This service only validates tokens
+        throw new UnsupportedOperationException(
+                "Token generation is no longer supported in this common service. " +
+                "Please use the IAM service to generate tokens. " +
+                "This service is for token validation only.");
     }
 
     @Transactional
@@ -136,38 +98,10 @@ public class SsoService {
             throw new RuntimeException("Refresh token expired");
         }
 
-        User user = userRepository.findByEmail(session.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        Integer tenantId = tenantMasterService.getFirstTenantId()
-                .orElseThrow(() -> new RuntimeException("Tenant not found in tenant_master"));
-
-        // Create new access token
-        String accessToken = tokenProvider.generateToken(
-                user.getEmail(),
-                tenantId,
-                user.getUserRoles().stream()
-                        .map(userRole -> userRole.getRole().getName())
-                        .toList(),
-                user.getTenant().getApplications().stream()
-                        .map(Application::getName)
-                        .toList(),
-                user.getTenant().getDomains().stream()
-                        .map(Domain::getName)
-                        .toList()
-        );
-
-        // Update session last accessed time
-        session.setLastAccessedAt(LocalDate.from(Instant.now()));
-        ssoSessionRepository.save(session);
-
-        return SsoResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .sessionId(session.getSessionId())
-                .tokenType("Bearer")
-                .expiresIn(properties.getJwt().getRefreshTokenValidityHours() * 60 * 60) // in seconds
-                .build();
+        // Token generation is now handled by the IAM service
+        throw new UnsupportedOperationException(
+                "Token generation is no longer supported in this common service. " +
+                "Please use the IAM service to generate tokens.");
     }
 
     @Transactional
@@ -203,31 +137,10 @@ public class SsoService {
 
     @Transactional
     public SsoResponse loginWithTenantMaster() {
-        // Always use static username and password for token creation
-        String username = "Medgenome@gmail.com";
-        Integer tenantId = 1;
-        String accessToken = tokenProvider.generateToken(
-            username,
-            tenantId,
-            null, // roles
-            null, // apps
-            null, // domains
-            30 * 60 * 1000 // 30 min in ms
-        );
-        String refreshTokenStr = tokenProvider.generateToken(
-            username,
-            tenantId,
-            null,
-            null,
-            null,
-            2 * 60 * 60 * 1000 // 2 hours in ms
-        );
-        return SsoResponse.builder()
-            .accessToken(accessToken)
-            .refreshToken(refreshTokenStr)
-            .sessionId("")
-            .tokenType("Bearer")
-            .expiresIn(30 * 60) // 30 min in seconds
-            .build();
+        // Token generation is now handled by the IAM service
+        throw new UnsupportedOperationException(
+                "Token generation is no longer supported in this common service. " +
+                "Please use the IAM service to generate tokens. " +
+                "This service is for token validation only.");
     }
 }

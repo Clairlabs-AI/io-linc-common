@@ -1,151 +1,205 @@
 package com.medgenome.auth.security;
 
-import com.medgenome.auth.config.MultiTenantAuthProperties;
 import com.medgenome.auth.dto.TokenDetails;
-import com.medgenome.auth.entity.Application;
-import com.medgenome.auth.entity.Domain;
-import com.medgenome.auth.entity.Role;
-import com.medgenome.auth.entity.UserRole;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
-import java.io.InputStream;
-import java.security.KeyFactory;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Date;
 import java.util.List;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Map;
 
+/**
+ * JWT Token Provider for token validation and parsing.
+ * This service only validates and parses tokens - token generation is handled by the IAM service.
+ * Uses HS256 algorithm with a secret key for token validation when configured.
+ * Can parse tokens without signature validation if secret key is not configured.
+ */
 @Component
 public class JwtTokenProvider {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(JwtTokenProvider.class);
 
-    @Value("${jwt.private-key.path}")
-    private Resource privateKeyPath;
+    @Value("${auth.jwt.secret-key:}")
+    private String secretKey;
 
-    @Value("${jwt.public-key.path}")
-    private Resource publicKeyPath;
-
-    private PrivateKey privateKey;
-    private PublicKey publicKey;
-
-    private final MultiTenantAuthProperties properties;
-
-    public JwtTokenProvider(MultiTenantAuthProperties properties) {
-        this.properties = properties;
-    }
-
+    private SecretKey hmacKey;
 
     @PostConstruct
-    public void initKeys() throws Exception {
-        this.privateKey = loadPrivateKey(privateKeyPath);
-        this.publicKey = loadPublicKey(publicKeyPath);
-    }
+    public void initKeys() {
+        if (secretKey == null || secretKey.isEmpty() || secretKey.equals("changeThisToASecureSecretKeyInProduction")) {
+            LOGGER.info("JWT secret key is not configured. Token validation will be skipped, but tokens can still be parsed.");
+            return;
+        }
 
-    private PrivateKey loadPrivateKey(Resource resource) throws Exception {
-        try (InputStream is = resource.getInputStream()) {
-            byte[] keyBytes = is.readAllBytes();
-            String key = new String(keyBytes)
-                    .replace("-----BEGIN PRIVATE KEY-----", "")
-                    .replace("-----END PRIVATE KEY-----", "")
-                    .replaceAll("\\s", "");
-            byte[] decoded = Base64.getDecoder().decode(key);
-            PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(decoded);
-            return KeyFactory.getInstance("RSA").generatePrivate(keySpec);
+        try {
+            // For HS256, we need at least 256 bits (32 bytes)
+            byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);
+            // Ensure minimum key length for HS256
+            if (keyBytes.length < 32) {
+                // Pad to minimum required length
+                byte[] paddedKey = new byte[32];
+                System.arraycopy(keyBytes, 0, paddedKey, 0, Math.min(keyBytes.length, 32));
+                keyBytes = paddedKey;
+            }
+            this.hmacKey = Keys.hmacShaKeyFor(keyBytes);
+            LOGGER.info("Initialized JWT token provider with HS256 algorithm for signature validation");
+        } catch (Exception e) {
+            LOGGER.warn("Failed to initialize HMAC key for HS256. Token validation will be skipped, but tokens can still be parsed.", e);
         }
     }
 
-    private PublicKey loadPublicKey(Resource resource) throws Exception {
-        try (InputStream is = resource.getInputStream()) {
-            byte[] keyBytes = is.readAllBytes();
-            String key = new String(keyBytes)
-                    .replace("-----BEGIN PUBLIC KEY-----", "")
-                    .replace("-----END PUBLIC KEY-----", "")
-                    .replaceAll("\\s", "");
-            byte[] decoded = Base64.getDecoder().decode(key);
-            X509EncodedKeySpec keySpec = new X509EncodedKeySpec(decoded);
-            return KeyFactory.getInstance("RSA").generatePublic(keySpec);
-        }
-    }
-
-    public String generateToken(String username, Integer tenantId, List<String> roles,
-                                List<String> apps, List<String> domains) {
-        Date now = new Date();
-        Date expiry = new Date(now.getTime() + properties.getJwt().getAccessTokenValidityMinutes() * 60 * 1000);
-
-        return Jwts.builder()
-                .setSubject(username) // sub (user_id)
-                .claim("tenant_id", tenantId) // tenant_id
-                // .claim("roles", roles) // roles
-                // .claim("apps", apps) // apps
-                //.claim("domains", domains) // domains
-                .setIssuedAt(now)
-                .claim("ist", now.getTime()) // Set issued timestamp
-                .claim("ttl", properties.getJwt().getAccessTokenValidityMinutes() * 60 * 1000) // Set time to live in milliseconds
-                .setExpiration(expiry) // exp
-                .signWith(privateKey, SignatureAlgorithm.RS256)
-                .compact();
-    }
-
-    public String generateToken(String username, Integer tenantId, List<String> roles,
-                           List<String> apps, List<String> domains, long validityMillis) {
-        Date now = new Date();
-        Date expiry = new Date(now.getTime() + validityMillis);
-
-        return Jwts.builder()
-                .setSubject(username)
-                .claim("tenant_id", tenantId)
-                .claim("roles", roles)
-                .claim("apps", apps)
-                .claim("domains", domains)
-                .setIssuedAt(now)
-                .claim("ist", now.getTime())
-                .claim("ttl", validityMillis)
-                .setExpiration(expiry)
-                .signWith(privateKey, SignatureAlgorithm.RS256)
-                .compact();
-    }
-
+    /**
+     * Validates a JWT token using HS256 algorithm.
+     * If secret key is not configured, returns false as signature cannot be validated.
+     *
+     * @param token JWT token string
+     * @return true if token is valid (signature verified), false otherwise
+     */
     public boolean validateToken(String token) {
+        if (hmacKey == null) {
+            LOGGER.debug("HMAC key not configured. Cannot validate token signature.");
+            return false;
+        }
+
         try {
             Jwts.parserBuilder()
-                    .setSigningKey(publicKey)
+                    .setSigningKey(hmacKey)
                     .build()
                     .parseClaimsJws(token);
             return true;
         } catch (JwtException | IllegalArgumentException ex) {
+            LOGGER.debug("Token validation failed: {}", ex.getMessage());
             return false;
         }
     }
 
+    /**
+     * Parses a JWT token and extracts token details.
+     * If secret key is configured, validates the signature before parsing.
+     * If secret key is not configured, parses the token without signature validation.
+     * This method matches the token structure generated by the IAM service.
+     *
+     * @param token JWT token string
+     * @return TokenDetails containing extracted claims
+     * @throws JwtException if token parsing fails
+     */
     public TokenDetails parseToken(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(publicKey)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        Claims claims;
+        
+        if (hmacKey != null) {
+            // Parse and validate signature if secret key is configured
+            try {
+                claims = Jwts.parserBuilder()
+                        .setSigningKey(hmacKey)
+                        .build()
+                        .parseClaimsJws(token)
+                        .getBody();
+            } catch (JwtException ex) {
+                LOGGER.warn("Token signature validation failed: {}", ex.getMessage());
+                throw ex;
+            }
+        } else {
+            // Parse without signature validation if secret key is not configured
+            LOGGER.debug("Parsing token without signature validation (secret key not configured)");
+            try {
+                // Manually decode JWT payload (middle part) without signature validation
+                String[] parts = token.split("\\.");
+                if (parts.length != 3) {
+                    throw new IllegalArgumentException("Invalid JWT token format. Expected 3 parts separated by dots.");
+                }
+                
+                // Decode the payload (second part) - JWT uses base64url encoding
+                // Base64 URL decoder may need padding
+                String paddedPayload = parts[1];
+                int remainder = paddedPayload.length() % 4;
+                if (remainder > 0) {
+                    paddedPayload += "=".repeat(4 - remainder);
+                }
+                byte[] decodedBytes = Base64.getUrlDecoder().decode(paddedPayload);
+                String payloadJson = new String(decodedBytes, StandardCharsets.UTF_8);
+                
+                // Parse JSON payload into Claims
+                ObjectMapper mapper = new ObjectMapper();
+                @SuppressWarnings("unchecked")
+                Map<String, Object> claimsMap = mapper.readValue(payloadJson, Map.class);
+                
+                // Convert Map to Claims object
+                claims = Jwts.claims(claimsMap);
+            } catch (Exception ex) {
+                LOGGER.warn("Token parsing failed: {}", ex.getMessage());
+                throw new JwtException("Failed to parse token: " + ex.getMessage(), ex);
+            }
+        }
 
-        String username = claims.getSubject();
-        Integer tenantId = claims.get("tenant_id", Integer.class);
-        String encodedPassword = claims.get("password", String.class);
+        // Extract claims matching the IAM token structure
+        String username = claims.getSubject(); // sub claim
+        
+        // tenant_id can be String or Integer in the token - always extract as Object first to avoid type conversion issues
+        Integer tenantId = null;
+        Object tenantIdObj = claims.get("tenant_id");
+        if (tenantIdObj != null) {
+            try {
+                if (tenantIdObj instanceof Integer) {
+                    tenantId = (Integer) tenantIdObj;
+                } else {
+                    // Convert String to Integer
+                    tenantId = Integer.parseInt(tenantIdObj.toString());
+                }
+            } catch (NumberFormatException e) {
+                LOGGER.warn("Failed to parse tenant_id as Integer: {}", tenantIdObj);
+            }
+        }
+        
+        // role is a String (not a List)
+        String role = claims.get("role", String.class);
+        
+        // permissions is a List<String>
         @SuppressWarnings("unchecked")
-        List<String> roles = claims.get("roles", List.class);
-        @SuppressWarnings("unchecked")
-        List<String> allowedApplications = claims.get("apps", List.class);
-        @SuppressWarnings("unchecked")
-        List<String> domains = claims.get("domains", List.class);
-        long issuedTimestamp = claims.get("ist", Long.class);
-        long timeToLive = claims.get("ttl", Long.class);
+        List<String> permissions = claims.get("permissions", List.class);
+        if (permissions == null) {
+            permissions = new ArrayList<>();
+        }
+        
+        // sessionId claim
+        String sessionId = claims.get("sessionId", String.class);
+        if (sessionId == null) {
+            // Try sid as alternative
+            sessionId = claims.get("sid", String.class);
+        }
+        
+        // tenant claim (alternative to tenant_id) - can be String or Integer in the token
+        Integer tenant = null;
+        Object tenantObj = claims.get("tenant");
+        if (tenantObj != null) {
+            try {
+                if (tenantObj instanceof Integer) {
+                    tenant = (Integer) tenantObj;
+                } else {
+                    // Convert String to Integer
+                    tenant = Integer.parseInt(tenantObj.toString());
+                }
+            } catch (NumberFormatException e) {
+                LOGGER.warn("Failed to parse tenant as Integer: {}", tenantObj);
+            }
+        } else if (tenantId != null) {
+            // Fallback to tenant_id if tenant is not present
+            tenant = tenantId;
+        }
+        
+        // sid claim
+        String sid = claims.get("sid", String.class);
 
-        return new TokenDetails(username, encodedPassword, tenantId, roles, allowedApplications, domains, issuedTimestamp, timeToLive);
+        return new TokenDetails(username, tenantId, role, permissions, sessionId, tenant, sid);
     }
 }

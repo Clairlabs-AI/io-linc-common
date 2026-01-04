@@ -5,10 +5,6 @@ auth:
     refresh-token-validity-hours: 8
     issuer: multi-tenant-auth
 
-jwt:
-  private-key.path: classpath:keys/private_key.pem
-  public-key.path: classpath:keys/public_key.pem
-
 spring:
   jpa:
     hibernate:
