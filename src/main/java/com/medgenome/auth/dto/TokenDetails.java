@@ -13,6 +13,8 @@ public record TokenDetails(
         List<String> permissions,   // permissions claim - list of permissions
         String sessionId,          // sessionId claim - session identifier
         Integer tenant,              // tenant claim - tenant identifier
-        String sid                  // sid claim - session identifier (alternative)
+        String sid,                  // sid claim - session identifier (alternative)
+        long iat,
+        long exp
 ) {
 }
