@@ -182,9 +182,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 .anyMatch(permission -> {
                     String permissionUpper = permission.toUpperCase();
                     // Check if permission starts with application name or contains it
-                    return permissionUpper.startsWith(appNameUpper + "_")
-                            || permissionUpper.contains("_" + appNameUpper + "_")
-                            || permissionUpper.equals(appNameUpper);
+                    return permissionUpper.startsWith(appNameUpper) || permissionUpper.contains("_" + appNameUpper + "_");
                 });
     }
 

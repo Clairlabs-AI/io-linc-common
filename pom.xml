@@ -13,7 +13,7 @@
 
     <groupId>com.medgenome</groupId>
     <artifactId>multi-tenant-jwt-auth-starter</artifactId>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.1.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>Multi-tenant JWT Authentication Starter</name>
