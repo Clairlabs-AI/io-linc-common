@@ -5,11 +5,13 @@ import com.medgenome.auth.dto.TokenDetails;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import org.hibernate.Session;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
+@ConditionalOnBean(EntityManager.class)
 public class TenantFilterService {
 
     private final EntityManager entityManager;
