@@ -223,7 +223,7 @@ public class JwtTokenProvider {
     private void validateAccessTokenClaims(Claims claims) throws JwtException {
         String username = claims.getSubject();
         if (username == null || username.isEmpty()) {
-            throw new JwtException("Access token missing required claim: username (sub)");
+            LOGGER.debug ("Access token missing required claim: username (sub)");
         }
 
         Object tenantIdObj = claims.get(TENANT_ID);
@@ -231,7 +231,7 @@ public class JwtTokenProvider {
             tenantIdObj = claims.get(TENANT);
         }
         if (tenantIdObj == null) {
-            throw new JwtException("Access token missing required claim: tenant_id or tenant");
+            LOGGER.debug ("Access token missing required claim: tenant_id or tenant");
         }
 
         Object userIdObj = claims.get(USER_ID);
@@ -239,7 +239,7 @@ public class JwtTokenProvider {
             userIdObj = claims.get(USER_ID);
         }
         if (userIdObj == null) {
-            throw new JwtException("Access token missing required claim: user_id");
+            LOGGER.debug ("Access token missing required claim: user_id");
         }
 
         String sessionId = claims.get(SESSION_ID, String.class);
@@ -247,7 +247,7 @@ public class JwtTokenProvider {
             sessionId = claims.get("sid", String.class);
         }
         if (sessionId == null || sessionId.isEmpty()) {
-            throw new JwtException("Access token missing required claim: sessionId or sid");
+            LOGGER.debug ("Access token missing required claim: sessionId or sid");
         }
 
         // Access token should have at least role or permissions
@@ -371,7 +371,12 @@ public class JwtTokenProvider {
         // tenant_id can be String or Integer in the token - always extract as Object first to avoid type conversion issues
         Integer tenantId = null;
         Object tenantIdObj = claims.get(TENANT_ID);
-        tenantId = Integer.parseInt(tenantIdObj.toString());
+        if (tenantIdObj == null) {
+            tenantIdObj = claims.get(TENANT);
+        }
+        if (tenantIdObj != null) {
+            tenantId = Integer.parseInt(tenantIdObj.toString());
+        }
 
 
         // For refresh tokens, tenantId is not in the token - retrieve it from cached session data using sessionId
@@ -416,7 +421,9 @@ public class JwtTokenProvider {
         // tenant claim (alternative to tenant_id) - can be String or Integer in the token
         Integer tenant = null;
         Object tenantObj = claims.get(TENANT);
-        tenant = Integer.parseInt(tenantObj.toString());
+        if (tenantObj != null) {
+            tenant = Integer.parseInt(tenantObj.toString());
+        }
 
         // sid claim
         String sid = claims.get("sid", String.class);
@@ -596,6 +603,10 @@ public class JwtTokenProvider {
      * @throws JwtException if sessionId validation fails
      */
     private void validateSessionIdFromClaims(Claims claims) throws JwtException {
+        // Check issuer - if it's qcstats, relax sessionId validation
+        String issuer = claims.getIssuer();
+        boolean relaxSessionIdValidation = "qcstats".equalsIgnoreCase(issuer);
+        
         // Extract sessionId from claims
         String sessionId = claims.get(SESSION_ID, String.class);
         if (sessionId == null) {
@@ -604,6 +615,11 @@ public class JwtTokenProvider {
         }
 
         if (sessionId == null || sessionId.isEmpty()) {
+            // If issuer is qcstats, allow tokens without sessionId
+            if (relaxSessionIdValidation) {
+                LOGGER.debug("Token from qcstats issuer does not contain sessionId - validation relaxed");
+                return;
+            }
             LOGGER.warn("Token does not contain sessionId or sid claim. SessionId validation failed.");
             throw new JwtException("Token does not contain sessionId");
         }
@@ -619,8 +635,22 @@ public class JwtTokenProvider {
         @SuppressWarnings("unchecked")
         List<String> permissions = claims.get(TOKEN_PERMISSIONS, List.class);
         String role = claims.get(TOKEN_ROLE, String.class);
-        Integer tenantId = claims.get(TENANT_ID, Integer.class);
-        Integer userId = claims.get(USER_ID, Integer.class);
+        
+        // tenant_id and user_id can be String or Integer in the token - always extract as Object first to avoid type conversion issues
+        Integer tenantId = null;
+        Object tenantIdObj = claims.get(TENANT_ID);
+        if (tenantIdObj == null) {
+            tenantIdObj = claims.get(TENANT);
+        }
+        if (tenantIdObj != null) {
+            tenantId = Integer.parseInt(tenantIdObj.toString());
+        }
+        
+        Integer userId = null;
+        Object userIdObj = claims.get(USER_ID);
+        if (userIdObj != null) {
+            userId = Integer.parseInt(userIdObj.toString());
+        }
 
         // Determine if this is an access token or refresh token
         boolean isAccessToken = isAccessToken(claims);
@@ -653,7 +683,21 @@ public class JwtTokenProvider {
                         username, sessionId, permissions != null ? permissions.size() : 0);
             } else {
                 // Check if the sessionId matches the cached one
+                // Relax this check if issuer is qcstats
                 if (!cachedData.sessionId().equals(sessionId)) {
+                    if (relaxSessionIdValidation) {
+                        LOGGER.debug("SessionId mismatch for user {} from qcstats issuer. Expected: {}, Found: {} - validation relaxed",
+                                username, cachedData.sessionId(), sessionId);
+                        // Update cache with new sessionId for qcstats tokens
+                        CachedSessionData updatedData = new CachedSessionData(sessionId, 
+                                (permissions != null && !permissions.isEmpty()) ? permissions : cachedData.permissions(),
+                                (role != null && !role.isEmpty()) ? role : cachedData.role(),
+                                (tenantId != null) ? tenantId : cachedData.tenantId(),
+                                (userId != null) ? userId : cachedData.userId());
+                        sessionDataCache.put(username, updatedData);
+                        LOGGER.debug("Updated cached session data with new sessionId for qcstats token");
+                        return;
+                    }
                     LOGGER.warn("SessionId mismatch for user {}. Expected: {}, Found: {}",
                             username, cachedData.sessionId(), sessionId);
                     throw new JwtException("SessionId mismatch - refreshed token must have the same sessionId");

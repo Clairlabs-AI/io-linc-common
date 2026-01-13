@@ -1,6 +1,7 @@
 package com.medgenome.common;
 
 import com.medgenome.auth.config.MultiTenantAuthProperties;
+import com.medgenome.auth.service.TenantFilterService;
 import com.medgenome.common.aop.AuditLoggingAspect;
 import com.medgenome.common.aop.ExceptionLoggingAspect;
 import com.medgenome.common.aop.PerformanceLoggingAspect;
@@ -59,7 +60,10 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
     GlobalExceptionHandler.class,
     
     // Database
-    DatabaseConfiguration.class
+    DatabaseConfiguration.class,
+
+    // Tenant
+    TenantFilterService.class
 
 })
 @EnableJpaRepositories(basePackages = {

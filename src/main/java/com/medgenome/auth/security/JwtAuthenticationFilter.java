@@ -75,7 +75,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
 
                 // Check permission-based access control
-                if (!isApplicationAllowed(tokenDetails.permissions(), request)) {
+                if (!isApplicationAllowed(tokenDetails.username(), tokenDetails.permissions(), request)) {
                     LOGGER.warn("Access denied for user: {} to application: {}", 
                             tokenDetails.username(), request.getServletPath());
                     response.setStatus(HttpServletResponse.SC_FORBIDDEN);
@@ -154,11 +154,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * This method checks if any permission in the token grants access to the application
      * determined from the MDC context or request.
      *
+     * @param username
      * @param allowedPermissions List of permissions from the token
-     * @param request HTTP request
+     * @param request            HTTP request
      * @return true if access is allowed, false otherwise
      */
-    private boolean isApplicationAllowed(List<String> allowedPermissions, HttpServletRequest request) {
+    private boolean isApplicationAllowed(String username, List<String> allowedPermissions, HttpServletRequest request) {
         // Extract application name from request
         String currentApplication = MDC.get("appName");
 
@@ -168,9 +169,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         // If no permissions, deny access
-        if (allowedPermissions == null || allowedPermissions.isEmpty()) {
+        if (!"BFXPipeline".equalsIgnoreCase(username) && (allowedPermissions == null || allowedPermissions.isEmpty())) {
             LOGGER.warn("No permissions found in token for user");
             return false;
+        }
+
+        // Allow BFXPipeline user to bypass permission checks
+        if ("BFXPipeline".equalsIgnoreCase(username)) {
+            LOGGER.debug("Allowing access for BFXPipeline user without permission check");
+            return true;
         }
 
         // Check if application name is directly in permissions list (case-insensitive)
@@ -178,6 +185,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         // Check if any permission grants access to the application
         // We check if any permission starts with the application name (case-insensitive)
+        if (allowedPermissions == null || allowedPermissions.isEmpty()) {
+            return false;
+        }
+        
         return allowedPermissions.stream()
                 .anyMatch(permission -> {
                     String permissionUpper = permission.toUpperCase();
