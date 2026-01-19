@@ -78,7 +78,8 @@ public class SecurityConfig {
                 "http://localhost:4200",
                 "http://localhost:4203",
                 "http://patient.impact0mics.local:9004",
-                "http://frontend.impact0mics.local"
+                "http://frontend.impact0mics.local",
+                "http://frontend.impact0mics-qa.local"
         ));
         configuration.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS","PATCH"));
         configuration.setAllowedHeaders(List.of("*"));
