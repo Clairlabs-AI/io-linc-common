@@ -26,7 +26,7 @@
         <lombok.version>1.18.34</lombok.version>
     </properties>
 
-    <repositories>
+    <!--<repositories>
         <repository>
             <id>nexus-snapshots</id>
             <name>Nexus Snapshots</name>
@@ -50,9 +50,9 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
-    </repositories>
+    </repositories>-->
 
-    <distributionManagement>
+    <!--<distributionManagement>
         <snapshotRepository>
             <id>nexus-snapshots</id>
             <url>http://192.168.8.66:8118/repository/maven-snapshots/</url>
@@ -61,7 +61,7 @@
             <id>nexus-releases</id>
             <url>http://192.168.8.66:8118/repository/maven-releases/</url>
         </repository>
-    </distributionManagement>
+    </distributionManagement>-->
 
     <dependencies>
         <!-- Spring Boot Starters -->

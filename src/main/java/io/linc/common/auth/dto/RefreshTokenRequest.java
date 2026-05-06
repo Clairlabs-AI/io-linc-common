@@ -1,4 +1,4 @@
-package com.medgenome.auth.dto;
+package io.linc.common.auth.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;

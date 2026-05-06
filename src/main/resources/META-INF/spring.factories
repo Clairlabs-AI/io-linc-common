@@ -1,2 +1,3 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.medgenome.auth.config.SecurityConfig
+io.linc.common.auth.config.SecurityConfig,\
+io.linc.common.common.CommonLibraryAutoConfiguration
