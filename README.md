@@ -13,15 +13,39 @@ A Spring Boot starter for implementing multi-tenant JWT authentication with refr
 
 ## Usage
 
-1. Add the dependency to your project:
+1. Add the GitHub Packages Maven repository (and authenticate server `github` with a PAT that has `read:packages`):
+
+```xml
+<repository>
+    <id>github</id>
+    <url>https://maven.pkg.github.com/Clairlabs-AI/io-linc-common</url>
+    <snapshots>
+        <enabled>true</enabled>
+    </snapshots>
+</repository>
+```
+
+In `~/.m2/settings.xml`:
+
+```xml
+<server>
+    <id>github</id>
+    <username>YOUR_GITHUB_USERNAME</username>
+    <password>YOUR_GITHUB_PAT</password>
+</server>
+```
+
+Then add the dependency:
 
 ```xml
 <dependency>
     <groupId>com.medgenome</groupId>
     <artifactId>multi-tenant-jwt-auth-starter</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.1.1-SNAPSHOT</version>
 </dependency>
 ```
+
+Internal Nexus remain the default deploy target in this project's `pom.xml`. A copy of the same JAR is published to GitHub Packages from [Clairlabs-AI/io-linc-common](https://github.com/Clairlabs-AI/io-linc-common).
 
 2. Configure the properties in your application.properties/yaml:
 
