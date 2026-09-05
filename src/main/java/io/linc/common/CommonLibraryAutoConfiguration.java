@@ -11,7 +11,6 @@ import io.linc.common.config.PriorityPropertySource;
 import io.linc.common.db.DatabaseConfiguration;
 import io.linc.common.db.DatabaseProperties;
 import io.linc.common.http.exception.GlobalExceptionHandler;
-import io.linc.common.common.http.interceptor.*;
 import io.linc.common.http.interceptor.*;
 import io.linc.common.logging.LoggingConfiguration;
 import io.linc.common.logging.LoggingProperties;
