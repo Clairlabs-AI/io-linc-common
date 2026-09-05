@@ -24,14 +24,14 @@ mvn deploy                 # deploy to GitHub Packages (needs settings.xml serve
 
 The library activates via `src/main/resources/META-INF/spring.factories` (Spring Boot 2.x style). Two classes are registered as auto-configurations:
 
-- `config.auth.io.linc.SecurityConfig` — Spring Security filter chain (JWT, stateless sessions, public URL rules)
-- `common.io.linc.CommonLibraryAutoConfiguration` — everything else (AOP aspects, HTTP interceptors, DB config, JPA auditing, logging)
+- `io.linc.auth.config.SecurityConfig` — Spring Security filter chain (JWT, stateless sessions, public URL rules)
+- `io.linc.common.CommonLibraryAutoConfiguration` — everything else (AOP aspects, HTTP interceptors, DB config, JPA auditing, logging)
 
 ### Package Structure
 
-Two top-level packages under `io.linc.common`:
+Two top-level packages under `io.linc`:
 
-**`auth/`** — Authentication and identity domain
+**`auth/`** (`io.linc.auth`) — Authentication and identity domain
 - `security/` — `JwtTokenProvider` (validates/parses JWT), `JwtAuthenticationFilter` (per-request filter), `MDCLoggingFilter`
 - `config/` — `SecurityConfig`, `WebConfig` (CORS), `MultiTenantAuthProperties`
 - `entity/` — JPA entities: `User`, `Tenant`, `Role`, `Permission`, `RefreshToken`, `UserOtp`, `SsoSession`, etc.
@@ -40,7 +40,7 @@ Two top-level packages under `io.linc.common`:
 - `controller/` — `OtpController`, `SignUpController`, `SsoController`
 - `util/` — `AuthenticationUtils` (static helper API for downstream services)
 
-**`common/`** — Cross-cutting infrastructure
+**`common/`** (`io.linc.common`) — Cross-cutting infrastructure
 - `aop/` — `@Audited` and `@LogPerformance` annotations + their aspects; `ExceptionLoggingAspect` (auto-applied to `@Service`/`@Repository`/`@Controller`)
 - `db/` — `DatabaseConfiguration` (multi-datasource Tomcat JDBC pool), `DatabaseProperties`
 - `entity/` — `AuditableEntity` (abstract base class — extend this for automatic `createdAt/By`, `updatedAt/By`)
@@ -78,7 +78,7 @@ See `src/main/resources/application.yml` for defaults and `docs/COMMON_LIBRARY_O
 
 ## Database Tables
 
-All entities live in `src/main/java/io/linc/common/auth/entity/`. All tables except `tenant_master` extend `AuditableEntity` and automatically carry `created_at`, `created_by`, `updated_at`, `updated_by` columns.
+All entities live in `src/main/java/io/linc/auth/entity/`. All tables except `tenant_master` extend `AuditableEntity` and automatically carry `created_at`, `created_by`, `updated_at`, `updated_by` columns.
 
 **Core Auth**
 

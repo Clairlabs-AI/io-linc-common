@@ -66,8 +66,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 })
 @EnableJpaRepositories(basePackages = {
-        "io.linc.common.auth.repository"
-})
+        "io.linc.auth.repository"
+    })
 @ConditionalOnProperty(name = "common.enabled", havingValue = "true", matchIfMissing = true)
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 public class CommonLibraryAutoConfiguration {
