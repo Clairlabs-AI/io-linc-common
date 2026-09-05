@@ -1,3 +1,3 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-io.linc.common.auth.config.SecurityConfig,\
-io.linc.common.common.CommonLibraryAutoConfiguration
+config.auth.io.linc.SecurityConfig,\
+common.io.linc.CommonLibraryAutoConfiguration

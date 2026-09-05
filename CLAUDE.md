@@ -24,8 +24,8 @@ mvn deploy                 # deploy to GitHub Packages (needs settings.xml serve
 
 The library activates via `src/main/resources/META-INF/spring.factories` (Spring Boot 2.x style). Two classes are registered as auto-configurations:
 
-- `io.linc.common.auth.config.SecurityConfig` — Spring Security filter chain (JWT, stateless sessions, public URL rules)
-- `io.linc.common.common.CommonLibraryAutoConfiguration` — everything else (AOP aspects, HTTP interceptors, DB config, JPA auditing, logging)
+- `config.auth.io.linc.SecurityConfig` — Spring Security filter chain (JWT, stateless sessions, public URL rules)
+- `common.io.linc.CommonLibraryAutoConfiguration` — everything else (AOP aspects, HTTP interceptors, DB config, JPA auditing, logging)
 
 ### Package Structure
 
