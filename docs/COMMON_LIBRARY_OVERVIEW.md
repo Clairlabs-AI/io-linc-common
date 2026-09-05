@@ -784,6 +784,14 @@ Package URL: `https://maven.pkg.github.com/Clairlabs-AI/io-linc-common`
 Pushes to `main` / `development` and tags matching `v*` run
 [`.github/workflows/publish.yml`](../.github/workflows/publish.yml) and deploy the JAR.
 
+**Auth roles**
+
+| Role | Credential | Scopes / notes |
+|------|------------|----------------|
+| Publish (this repo CI) | Workflow `GITHUB_TOKEN` | Workflow sets `permissions: packages: write` |
+| Consume (other services CI) | Org secret `IO_LINC_COMMON_PACKAGE_TOKEN` | PAT with at least `read:packages` |
+| Local download | Personal PAT | `read:packages` |
+
 ### 14.1 Consumer `pom.xml`
 
 ```xml
@@ -817,8 +825,9 @@ Use the template at [`docs/maven-settings.xml.example`](maven-settings.xml.examp
 ### 14.3 Consumer GitHub Actions
 
 Before `mvn …` in a consumer workflow, write settings that authenticate with the org secret
-`IO_LINC_COMMON_PACKAGE_TOKEN` (PAT with `read:packages`; include `write:packages` only for publishers).
-Ensure the consumer repository is allowed to use that org secret.
+`IO_LINC_COMMON_PACKAGE_TOKEN` (PAT with at least `read:packages`).
+Do **not** use this secret for publishing from `io-linc-common` — that workflow uses `GITHUB_TOKEN`.
+Ensure the consumer repository is allowed to use the org secret.
 
 ```yaml
 permissions:
