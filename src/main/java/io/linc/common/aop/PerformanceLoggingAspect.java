@@ -27,7 +27,7 @@ public class PerformanceLoggingAspect {
 
     private static final Logger log = LoggerFactory.getLogger(PerformanceLoggingAspect.class);
 
-    @Pointcut("@annotation(com.medgenome.common.aop.annotation.LogPerformance)")
+    @Pointcut("@annotation(io.linc.common.aop.annotation.LogPerformance)")
     public void performanceLoggingPointcut() {
     }
 

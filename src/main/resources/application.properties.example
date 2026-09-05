@@ -103,7 +103,7 @@ common.jms.time-to-live=0
 common.jms.priority=4
 common.jms.listener-concurrency=1-3
 common.jms.session-transacted=true
-common.jms.trusted-packages=com.medgenome
+common.jms.trusted-packages=io.linc
 
 # Priority configuration properties
 common.config.enabled=true

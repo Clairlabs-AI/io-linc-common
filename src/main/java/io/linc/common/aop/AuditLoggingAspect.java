@@ -28,7 +28,7 @@ public class AuditLoggingAspect {
 
     private static final Logger log = LoggerFactory.getLogger(AuditLoggingAspect.class);
 
-    @Pointcut("@annotation(com.medgenome.common.aop.annotation.Audited)")
+    @Pointcut("@annotation(io.linc.common.aop.annotation.Audited)")
     public void auditPointcut() {
     }
 

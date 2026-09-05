@@ -20,7 +20,7 @@
         </encoder>
     </appender>
 
-    <logger name="com.medgenome.jsonconsole" level="DEBUG" additivity="false">
+    <logger name="io.linc.jsonconsole" level="DEBUG" additivity="false">
         <appender-ref ref="JSON_CONSOLE"/>
     </logger>
 
@@ -36,7 +36,7 @@
         </encoder>
     </appender>
 
-    <logger name="com.medgenome.audit" level="INFO" additivity="false">
+    <logger name="io.linc.audit" level="INFO" additivity="false">
         <appender-ref ref="AUDIT"/>
     </logger>
 
@@ -69,7 +69,7 @@
         </encoder>
     </appender>
 
-    <logger name="com.medgenome.performance" level="DEBUG" additivity="false">
+    <logger name="io.linc.performance" level="DEBUG" additivity="false">
         <appender-ref ref="PERFORMANCE_CONSOLE"/>
     </logger>
 
@@ -81,7 +81,7 @@
         </encoder>
     </appender>
 
-    <logger name="com.medgenome.security" level="INFO" additivity="false">
+    <logger name="io.linc.security" level="INFO" additivity="false">
         <appender-ref ref="SECURITY"/>
     </logger>
 
@@ -98,14 +98,14 @@
     <logger name="org.springframework.security" level="INFO"/>
     <logger name="org.springframework.boot.autoconfigure" level="INFO"/>
     <logger name="org.hibernate" level="WARN"/>
-    <logger name="com.medgenome.servicecommon" level="DEBUG"/>
+    <logger name="io.linc.common" level="DEBUG"/>
 
     <!-- Performance Logging -->
-    <logger name="com.medgenome.servicecommon.logging.properties" level="INFO"/>
+    <logger name="io.linc.common.logging" level="INFO"/>
 
     <!-- Security Logging -->
-    <logger name="com.medgenome.servicecommon.security" level="INFO"/>
+    <logger name="io.linc.auth.security" level="INFO"/>
 
     <!-- Audit Logging -->
-    <logger name="com.medgenome.servicecommon.audit" level="INFO"/>
+    <logger name="io.linc.common.aop" level="INFO"/>
 </configuration>
