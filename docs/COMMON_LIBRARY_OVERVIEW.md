@@ -36,6 +36,7 @@
     - 13.3 [Refresh Token Flow](#133-refresh-token-flow)
     - 13.4 [AOP Aspects at Service Layer](#134-aop-aspects-at-service-layer)
     - 13.5 [Exception Handling Flow](#135-exception-handling-flow)
+14. [Consuming via GitHub Packages](#14-consuming-via-github-packages)
 
 ---
 
@@ -769,6 +770,108 @@ sequenceDiagram
     GEH-->>Client: HTTP 404  application/json
     Note over Client: {<br/>  "timestamp": "2026-04-20T10:30:00",<br/>  "status": 404,<br/>  "error": "Not Found",<br/>  "message": "Sample not found",<br/>  "path": "/api/samples/X"<br/>}
 ```
+
+---
+
+## 14. Consuming via GitHub Packages
+
+This library is published to **GitHub Packages** as:
+
+`io.linc:multi-tenant-jwt-auth-starter`
+
+Package URL: `https://maven.pkg.github.com/Clairlabs-AI/io-linc-common`
+
+Pushes to `main` / `development` and tags matching `v*` run
+[`.github/workflows/publish.yml`](../.github/workflows/publish.yml) and deploy the JAR.
+
+### 14.1 Consumer `pom.xml`
+
+```xml
+<repositories>
+  <repository>
+    <id>github</id>
+    <url>https://maven.pkg.github.com/Clairlabs-AI/io-linc-common</url>
+    <snapshots>
+      <enabled>true</enabled>
+    </snapshots>
+  </repository>
+</repositories>
+
+<dependency>
+  <groupId>io.linc</groupId>
+  <artifactId>multi-tenant-jwt-auth-starter</artifactId>
+  <version>1.1.1-SNAPSHOT</version>
+</dependency>
+```
+
+The repository `<id>` must be `github` so it matches the server credentials in `settings.xml`.
+
+### 14.2 Local Maven settings
+
+Use the template at [`docs/maven-settings.xml.example`](maven-settings.xml.example):
+
+1. Copy it (e.g. to `~/.m2/settings.xml` or pass `-s path/to/settings.xml`).
+2. Set your GitHub username and a PAT with `read:packages`.
+3. Run `mvn -s path/to/settings.xml clean package`.
+
+### 14.3 Consumer GitHub Actions
+
+Before `mvn …` in a consumer workflow, write settings that authenticate with the org secret
+`IO_LINC_COMMON_PACKAGE_TOKEN` (PAT with `read:packages`; include `write:packages` only for publishers).
+Ensure the consumer repository is allowed to use that org secret.
+
+```yaml
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Write Maven settings for GitHub Packages
+        run: |
+          mkdir -p "$HOME/.m2"
+          cat > "$HOME/.m2/settings.xml" << EOF
+          <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                    xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
+            <servers>
+              <server>
+                <id>github</id>
+                <username>x-access-token</username>
+                <password>${{ secrets.IO_LINC_COMMON_PACKAGE_TOKEN }}</password>
+              </server>
+            </servers>
+          </settings>
+          EOF
+
+      - name: Build
+        run: mvn -B clean package
+```
+
+### 14.4 Package visibility (one-time after first publish)
+
+After the first successful deploy from this repo:
+
+1. Open **GitHub → Clairlabs-AI → Packages → multi-tenant-jwt-auth-starter**.
+2. Grant download access to the org or to each consumer repository.
+3. Confirm a consumer workflow can resolve the dependency without 401/403.
+
+Without this step, POM + settings alone will still fail in CI.
+
+### 14.5 Versioning
+
+- `*-SNAPSHOT` builds publish from `development` / `main` for day-to-day shared work.
+- For stable pins, bump to a release version (e.g. `1.1.1`), tag `v1.1.1`, and depend on that version in production consumers.
 
 ---
 

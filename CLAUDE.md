@@ -15,7 +15,7 @@ mvn clean package          # compile and package JAR + sources JAR
 mvn clean install          # install to local Maven repository (use before testing in a downstream service)
 mvn test                   # run all tests
 mvn test -Dtest=ClassName  # run a single test class
-mvn deploy                 # deploy to remote repository (requires Nexus config in pom.xml — currently commented out)
+mvn deploy                 # deploy to GitHub Packages (needs settings.xml server id github + write:packages token)
 ```
 
 ## Architecture Overview
@@ -60,7 +60,7 @@ Two top-level packages under `io.linc.common`:
 
 ### How Downstream Services Use This Library
 
-1. Add as a Maven dependency and run `mvn clean install` in this repo first.
+1. Add the Maven dependency and GitHub Packages repository (see `docs/COMMON_LIBRARY_OVERVIEW.md` §14). Authenticate with `docs/maven-settings.xml.example` (local PAT) or org secret `IO_LINC_COMMON_PACKAGE_TOKEN` in CI.
 2. Configure required properties (see `src/main/resources/application.properties.example`).
 3. Extend `AuditableEntity` for any JPA entity that needs audit columns.
 4. Call `AuthenticationUtils.getTenantId()`, `getUsername()`, or `getTokenDetails()` to access auth context — no injection needed.
